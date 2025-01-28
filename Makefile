@@ -5,8 +5,8 @@ CMAKE_FLAGS_LLVM =
 MAKEFILE_DIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 BUILD_TYPE ?= Debug
-BUILD_JOBS ?= 16
-LINK_JOBS  ?= 3
+BUILD_JOBS ?= 8
+LINK_JOBS  ?= 2
 
 INSTALLDIR ?= $(MAKEFILE_DIR)install
 

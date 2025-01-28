@@ -1109,6 +1109,9 @@ EmitMachineNode(SDNode *Node, bool IsClone, bool IsCloned,
 
     if (Flags.hasSameSign())
       MI->setFlag(MachineInstr::MIFlag::SameSign);
+
+    if (Flags.hasPersistent())
+      MI->setFlag(MachineInstr::MIFlag::Persistent);
   }
 
   // Emit all of the actual operands of this instruction, adding them to the

@@ -1825,6 +1825,8 @@ void MachineInstr::print(raw_ostream &OS, ModuleSlotTracker &MST,
     OS << "disjoint ";
   if (getFlag(MachineInstr::SameSign))
     OS << "samesign ";
+  if (getFlag(MachineInstr::Persistent))
+    OS << "persistent ";
 
   // Print the opcode name.
   if (TII)

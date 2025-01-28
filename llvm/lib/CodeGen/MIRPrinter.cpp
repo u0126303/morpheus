@@ -867,6 +867,8 @@ void MIPrinter::print(const MachineInstr &MI) {
     OS << "nusw ";
   if (MI.getFlag(MachineInstr::SameSign))
     OS << "samesign ";
+  if (MI.getFlag(MachineInstr::Persistent))
+    OS << "persistent ";
 
   OS << TII->getName(MI.getOpcode());
   if (I < E)

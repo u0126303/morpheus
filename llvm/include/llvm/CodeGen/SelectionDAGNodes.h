@@ -416,6 +416,8 @@ public:
     // Compare instructions which may carry the samesign flag.
     SameSign = 1 << 14,
 
+    Persistent = 1 << 15,
+
     // NOTE: Please update LargestValue in LLVM_DECLARE_ENUM_AS_BITMASK below
     // the class definition when adding new flags.
 
@@ -460,6 +462,7 @@ public:
   bool hasExact() const { return Flags & Exact; }
   bool hasDisjoint() const { return Flags & Disjoint; }
   bool hasSameSign() const { return Flags & SameSign; }
+  bool hasPersistent() const { return Flags & Persistent; }
   bool hasNonNeg() const { return Flags & NonNeg; }
   bool hasNoNaNs() const { return Flags & NoNaNs; }
   bool hasNoInfs() const { return Flags & NoInfs; }
