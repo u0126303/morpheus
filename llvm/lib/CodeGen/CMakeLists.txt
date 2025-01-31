@@ -25,6 +25,7 @@ endif()
 add_llvm_component_library(LLVMCodeGen
   AggressiveAntiDepBreaker.cpp
   AllocationOrder.cpp
+  AMiLiveIntervalsAnalysis.cpp
   Analysis.cpp
   AssignmentTrackingAnalysis.cpp
   AtomicExpandPass.cpp

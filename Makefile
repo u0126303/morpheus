@@ -16,6 +16,7 @@ CMAKE_GENERATOR ?= Ninja
 
 MKDIR = mkdir -p
 CMAKE = cmake
+CP = cp
 
 #############################################################################
 
@@ -44,6 +45,8 @@ CMAKE_FLAGS_LLVM += -DCMAKE_C_COMPILER=clang
 CMAKE_FLAGS_LLVM += -DCMAKE_C_COMPILER_LAUNCHER=ccache
 CMAKE_FLAGS_LLVM += -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
+#CMAKE_FLAGS_LLVM += -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
+
 #############################################################################
 
 .PHONY: all
@@ -65,3 +68,12 @@ build:
 .PHONY: install
 install:
 	$(CMAKE) --build $(BUILDDIR_LLVM) --target install
+
+.PHONY: build-llc
+build-llc:
+	$(CMAKE) --build $(BUILDDIR_LLVM) --target llc
+
+.PHONY: install-llc
+install-llc:
+	$(CMAKE) --build $(BUILDDIR_LLVM) --target llc
+	$(CP) $(BUILDDIR_LLVM)/bin/llc $(INSTALLDIR)/bin/llc

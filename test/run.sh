@@ -2,8 +2,8 @@
 #-debug-pass=Arguments
 #-debug-pass=Executions
 
-CLANG=../install/bin/clang
-LLC=../install/bin/llc
+CLANG=../llvm/build/bin/clang
+LLC=../llvm/build/bin/llc
 
 #rm -f test.ll
 #rm -f before.mir
