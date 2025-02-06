@@ -2,6 +2,8 @@
 #define LLVM_LIB_CODEGEN_AMILIVEINTERVALSANALYSIS_H
 
 #include "llvm/CodeGen/MachineFunctionPass.h"
+#include "llvm/CodeGen/SlotIndexes.h"
+#include <vector>
 
 namespace llvm {
 
@@ -15,7 +17,26 @@ public:
   bool runOnMachineFunction(MachineFunction &MF) override;
 
   void getAnalysisUsage(AnalysisUsage &AU) const override;
-};
+
+private:
+  SlotIndexes *SI;
+  LiveIntervals *LIS;
+
+  void printMIRWithSlotIndexes(MachineFunction &MF);
+
+  void AddSegment(MachineInstr &Mi, MachineBasicBlock *MBB);
+
+  void AddSegment(MachineInstr &MI, MachineInstr &MI2);
+
+  bool isRegisterUsedAfterSlotIndex(Register Reg, SlotIndex GivenIndex,
+                                    MachineFunction &MF);
+
+  std::vector<MachineBasicBlock *>
+  findUnreachableBlocks(MachineFunction &MF, MachineBasicBlock *StartBB);
+
+  std::vector<MachineBasicBlock *>
+  findDisconnectedBlocks(MachineFunction &MF, MachineBasicBlock *StartBB);
+  };
 
 } // end namespace llvm
 
