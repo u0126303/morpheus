@@ -1,15 +1,15 @@
 \documentclass[12pt]{article}
 
 \usepackage[utf8]{inputenc}
-\usepackage{algorithm2e}
+\usepackage[plainruled,noline]{algorithm2e}
 
 \input{macros.tex}
 
 \begin{document}
 
-\section{\AMi Interferences}
+\section{Register Allocation}
 
-How to compute \AMi-induced edges for the interference graph.
+How to compute the \AMi-induced edges of the interference graph.
 
 % A secret-dependent region:
 %     - A tuple of (set(basic block), set(dir-edge), entry, exit)
@@ -19,7 +19,8 @@ How to compute \AMi-induced edges for the interference graph.
 
 % - Index(i), Index(bb)
 %      defines a total order between instructions and between basic blocks
-%         (determined by linearization algorithm)
+%         according to some linearization function
+%                   (LLVM linearization, *not* AMi linearization)
 %
 %      the indexes are assigned such that 
 %              for all instructions i:
@@ -39,10 +40,33 @@ How to compute \AMi-induced edges for the interference graph.
 
 \begin{algorithm}
 \Fn{\FComputeAMiInterferenceEdges{$R$}}{
-  % R: Secret-dependent region (set of basic blocks)
-  % Returns: set of AMi-induced edges
-
-  % Add edge
+  \DontPrintSemicolon
+  \KwData{Secret-dependent region $R$}
+  \KwResult{Set of \AMi-induced edges $E$}
+  \;
+  $E \gets \emptyset$\;
+  \For{$p \in \FPersistentInstructions{R}$}{
+    \For{$bb \in \FBasicBlocks{R} \mid \neg \FConnected(\FBasicBlock(p), bb)$}{
+      \;
+      \Comment{Case 1}
+      \If{$bb > \FBasicBlock(p)$}{
+        \Comment{Case 1.1}
+        \For{$i \in \FUsers(R, p)$}{
+          \Comment{Bug in \AMi{} tranformation?}
+          \Assert{$i < bb$}
+        }
+        \Comment{Case 1.2}
+      }
+      \;
+      \Comment{Case 2}
+      \If{$bb < \FBasicBlock(p)$}{
+        \Comment{Case 2.1}
+        \Comment{Case 2.2}
+      }
+    }
+  }
+  \;
+  \Return{$E$}
 }
 \end{algorithm}
 

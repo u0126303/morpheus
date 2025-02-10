@@ -7,9 +7,15 @@
 % --------- algorithm2e
 \SetKwProg{Fn}{def}{\string:}{}
 \SetKwFunction{FComputeAMiInterferenceEdges}{\textnormal{\func{ComputeAMiInterferenceEdges}}}
+\SetKwFunction{FPersistentInstructions}{\textnormal{\func{PersistentInstructions}}}
+\SetKwFunction{FBasicBlocks}{\textnormal{\func{BasicBlocks}}}
+\SetKwFunction{FBasicBlock}{\textnormal{\func{BasicBlock}}}
+\SetKwFunction{FConnected}{\textnormal{\func{connected}}}
+\SetKwFunction{FUsers}{\textnormal{\func{connected}}}
 \SetKw{Assert}{assert}
-\SetKwFor{For}{for}{:}{}
-\SetKwSwitch{Switch}{Case}{Other}{switch}{:}{case}{otherwise}{}{}
-\SetKwIF{If}{ElseIf}{Else}{if}{:}{else if}{else}{:}%
+\SetKwFor{For}{for}{}{}
+\SetKwSwitch{Switch}{Case}{Other}{switch}{}{case}{otherwise}{}{}
+\SetKwIF{If}{ElseIf}{Else}{if}{}{else if}{else}{}%
+\SetKwIF{If}{ElseIf}{Else}{if}{}{else if}{else}{}%
 \SetKwInput{KwData}{Input}
-\SetKwComment{Comment}{/* }{ */}
+\SetKwComment{Comment}{\# }{}
