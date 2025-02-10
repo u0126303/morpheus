@@ -19,6 +19,7 @@ public:
   void getAnalysisUsage(AnalysisUsage &AU) const override;
 
 private:
+  MachineRegisterInfo *MRI;
   SlotIndexes *SI;
   LiveIntervals *LIS;
 
@@ -28,8 +29,7 @@ private:
 
   void AddSegment(MachineInstr &MI, MachineInstr &MI2);
 
-  bool isRegisterUsedAfterSlotIndex(Register Reg, SlotIndex GivenIndex,
-                                    MachineFunction &MF);
+  bool isRegisterUsedAfterSlotIndex(Register Reg, SlotIndex GivenIndex);
 
   std::vector<MachineBasicBlock *>
   findUnreachableBlocks(MachineFunction &MF, MachineBasicBlock *StartBB);

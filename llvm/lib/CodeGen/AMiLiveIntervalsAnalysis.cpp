@@ -100,11 +100,10 @@ void AMiLiveIntervalsAnalysis::AddSegment(MachineInstr &MI, MachineInstr &MI2) {
 /// Function to check if a register is used in a basic block with a SlotIndex >
 /// GivenIndex
 bool AMiLiveIntervalsAnalysis::isRegisterUsedAfterSlotIndex(
-    Register Reg, SlotIndex GivenIndex, MachineFunction &MF) {
-  MachineRegisterInfo &MRI = MF.getRegInfo();
+    Register Reg, SlotIndex GivenIndex) {
 
   // Iterate over all uses of the register
-  for (MachineOperand &MO : MRI.reg_nodbg_operands(Reg)) {
+  for (MachineOperand &MO : MRI->reg_nodbg_operands(Reg)) {
     if (!MO.isUse())
       continue; // We only care about uses
 
@@ -129,6 +128,7 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
   errs() << "Running AMiLiveIntervalsAnalysis on function: " << MF.getName()
          << "\n";
 
+  MRI = &MF.getRegInfo();
   SI = &getAnalysis<SlotIndexesWrapperPass>().getSI();
   LIS = &getAnalysis<LiveIntervalsWrapperPass>().getLIS();
 
@@ -137,14 +137,72 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
       if (MI.getFlag(MI.Persistent)) {
         for (MachineBasicBlock *MBB2 : findDisconnectedBlocks(MF, &MBB)) {
 
-          // RULE 1
+          // CASE 1
           if (SI->getMBBStartIdx(MBB2) > SI->getMBBStartIdx(&MBB)) {
-            if (isRegisterUsedAfterSlotIndex(MI.getOperand(0).getReg(), SI->getMBBEndIdx(MBB2), MF)) {
-            errs() << MI << ": " << MBB2->getName() << "(" << MBB2->getNumber()
-                   << ")" << "\n";
-            AddSegment(MI, MBB2);
-            errs() << LIS->getInterval(MI.getOperand(0).getReg()) << "\n";
+
+            // CASE 1.1
+            if (isRegisterUsedAfterSlotIndex(MI.getOperand(0).getReg(),
+                                             SI->getMBBEndIdx(MBB2))) {
+              errs() << "ERROR: " << MI << ": " << MBB2->getName() << "("
+                     << MBB2->getNumber() << ")" << "\n";
             }
+
+            // CASE 1.2
+            for (MachineInstr &MI2 : *MBB2) {
+              for (MachineOperand &MO : MI2.operands()) {
+                if (MO.isUse()) {
+                  // errs() << "Use operand: " << MO.getReg() << "\n";
+
+                  Register usedReg = MO.getReg();
+
+                  // Check if the register is valid and not a special register
+                  if (usedReg.isVirtual()) {
+                    // Get the instruction that defines the virtual register
+                    MachineInstr *definingInst = MRI->getVRegDef(usedReg);
+                    if (definingInst) {
+
+                      assert(SI->hasIndex(*definingInst) && "TODO");
+                      SlotIndex definingIndex =
+                          SI->getInstructionIndex(*definingInst);
+
+                      assert(SI->hasIndex(*definingInst) && "TODO");
+                      if (definingIndex < SI->getInstructionIndex(MI)) {
+                        errs()
+                            << "CASE 2.2 " << usedReg
+                            << " is used in instruction: " << MI2
+                            << " and defined by instruction: " << *definingInst
+                            << "\n";
+                        // AddSegment(*MI2, *MI1);
+                        // errs() << LIS->getInterval(MI.getOperand(0).getReg())
+                        // << "\n";
+                      }
+                    }
+                  } else if (usedReg.isPhysical()) {
+                    // Physical registers are trickier because they may be
+                    // defined by multiple instructions, especially in low-level
+                    // code generation. If you are dealing with physical
+                    // registers, you typically need to track modifications
+                    // across instructions, which may involve target-specific
+                    // logic. For physical registers, we may need to track
+                    // through the definition This depends on the target's
+                    // constraints, but we can still check if it's a use.
+
+                    assert(false && "TODO");
+
+                    // You can further check for instructions modifying this
+                    // physical register.
+                  }
+                }
+              }
+            }
+          }
+
+          // CASE 2
+          if (SI->getMBBStartIdx(MBB2) < SI->getMBBStartIdx(&MBB)) {
+
+            // CASE 2.1
+
+            // CASE 2.2
           }
         }
       }
