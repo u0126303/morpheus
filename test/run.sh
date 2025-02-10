@@ -5,11 +5,11 @@
 CLANG=../llvm/build/bin/clang
 LLC=../llvm/build/bin/llc
 
-#rm -f test.ll
-#rm -f before.mir
-#rm -f after.mir
+#rm -f case.1.2.ll
+#rm -f case.1.2.before.mir
+#rm -f case.1.2.after.mir
 
-#$CLANG -S -O1 -emit-llvm -target riscv32 test.c -o test.ll
-#$LLC --stop-before=greedy test.ll -o before.mir
+#$CLANG -S -O1 -emit-llvm -target riscv32 case.1.2.c -o case.1.2.ll
+#$LLC --stop-before=greedy case.1.2.ll -o case.1.2.before.mir
 
-$LLC --run-pass=greedy,virtregrewriter before.mir -o after.mir
+$LLC --run-pass=greedy,virtregrewriter case.1.2.before.mir -o case.1.2.after.mir

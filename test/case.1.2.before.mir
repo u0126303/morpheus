@@ -1,6 +1,6 @@
 --- |
-  ; ModuleID = 'test.ll'
-  source_filename = "test.c"
+  ; ModuleID = 'case.1.2.ll'
+  source_filename = "case.1.2.c"
   target datalayout = "e-m:e-p:32:32-i64:64-n32-S128"
   target triple = "riscv32"
   
