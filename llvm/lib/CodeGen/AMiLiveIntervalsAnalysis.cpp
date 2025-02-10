@@ -170,7 +170,7 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                              << " is used in instruction: " << MI2
                              << " and defined by instruction: " << *definingInst
                              << "\n";
-                      // AddSegment(*MI2, *MI1);
+                      AddSegment(MI2, MI);
                       // errs() << LIS->getInterval(MI.getOperand(0).getReg())
                       // << "\n";
                     }
