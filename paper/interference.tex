@@ -12,6 +12,8 @@
 
 How to compute the \AMi-induced edges of the interference graph.
 
+% Assume SSA
+
 % A secret-dependent region:
 %     - A tuple of (set(basic block), set(dir-edge), entry, exit)
 %     - Fully connected
@@ -26,17 +28,24 @@ How to compute the \AMi-induced edges of the interference graph.
 %      the indexes are assigned such that 
 %              for all instructions i:
 %                 basic-block(i) < i
+% - Operands(i)
+%       returns all operands of the instruction
+% - IsUse(op)
+%       returns if the operand is a use
 %
 % - Defs(bb)
-%       returns all defs within basic block bb 
+%       returns all defs (instructions) within basic block bb 
 % - Uses(bb)
-%       returns all uses within basic block bb 
+%       returns all uses (instructions) within basic block bb 
 % - Uses(def)
-%       returns all uses of def
+%       returns all uses (instrucions) of def
 % - Users(R, i)
 %       returns all uses of instruction i within region R
+
 % - Instructions(R)
 %       returns the instructions of the region R
+% - Instructions(bb)
+%       returns the instructions of the basic block bb
 % - PersistentInstructions(R):
 %       returns the persistent instructions of the region R
 % - BasicBlock(i)
@@ -87,6 +96,15 @@ How to compute the \AMi-induced edges of the interference graph.
         }
 
         \Comment{Case 2.2}
+        \For{$op \in \FOperands(p) \mid \FIsUse(op)$}{
+          \If{$\FIndex(\FDef(op)) < \FIndex(bb)$} {
+            \For{$i \in \FInstructions{bb}$} {
+              % TODO: Unless u already contains that slot index
+              $E \gets E \cup \{\FEdge(\FDef{op},i)\}$\;
+              \Comment{LLVM: }
+            }
+          }
+        }
       }
     }
   }
