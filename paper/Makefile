@@ -1,11 +1,13 @@
+TOP = interference
+
 LATEXMK = latexmk
 
-all: interference.tex
+all: $(TOP).tex
 	${LATEXMK} $<
 
 clean:
-	$(RM) *.aux
-	$(RM) *.fls
-	$(RM) *.log
-	$(RM) *.pdf
-	$(RM) *.fdb_latexmk
+	$(RM) $(TOP).aux
+	$(RM) $(TOP).fdb_latexmk
+	$(RM) $(TOP).fls
+	$(RM) $(TOP).log
+	$(RM) $(TOP).pdf
