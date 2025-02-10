@@ -26,6 +26,8 @@ How to compute the \AMi-induced edges of the interference graph.
 %              for all instructions i:
 %                 basic-block(i) < i
 %
+% - Uses(bb)
+%       returns all uses withtin basic block bb 
 % - Users(R, i)
 %       returns all uses of instruction i within region R
 % - Instructions(R)
@@ -37,6 +39,8 @@ How to compute the \AMi-induced edges of the interference graph.
 % - Connected(bb1, bb2)
 %        true if path from bb1 to bb2 or if path from bb2 to bb1
 %              (bb2 is reachable from bb1 or bb1 is reachable from bb2)
+% - Edge(u, v)
+%        represents a directed edge from source u to target v
 
 \begin{algorithm}
 \Fn{\FComputeAMiInterferenceEdges{$R$}}{
@@ -50,12 +54,21 @@ How to compute the \AMi-induced edges of the interference graph.
       \;
       \Comment{Case 1}
       \If{$bb > \FBasicBlock(p)$}{
+        \;
         \Comment{Case 1.1}
         \For{$i \in \FUsers(R, p)$}{
           \Comment{Bug in \AMi{} tranformation?}
           \Assert{$i < bb$}
         }
+        \;
         \Comment{Case 1.2}
+        \For{$i \in \FUses(bb)$}{
+          \If{$i < p $}{
+            \Comment{LLVM: Add Segment(p) to LIS(u)}
+            % TODO: Unless u already contains that slot index
+            $E \gets E \cup \FEdge(p,i)$
+          }
+        }
       }
       \;
       \Comment{Case 2}
