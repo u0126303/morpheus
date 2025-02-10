@@ -47,38 +47,36 @@ How to compute the \AMi-induced edges of the interference graph.
   \DontPrintSemicolon
   \KwData{Secret-dependent region $R$}
   \KwResult{Set of \AMi-induced edges $E$}
-  \;
   $E \gets \emptyset$\;
   \For{$p \in \FPersistentInstructions{R}$}{
     \For{$bb \in \FBasicBlocks{R} \mid \neg \FConnected(\FBasicBlock(p), bb)$}{
-      \;
+
       \Comment{Case 1}
-      \If{$bb > \FBasicBlock(p)$}{
-        \;
+      \If{$\FIndex(bb) > \FIndex(\FBasicBlock(p))$}{
+
         \Comment{Case 1.1}
         \For{$i \in \FUsers(R, p)$}{
-          \Comment{Bug in \AMi{} tranformation?}
-          \Assert{$i < bb$}
+          \Assert{$\FIndex(i) < \FIndex(bb)$}\;
+          \Comment{Else bug in \AMi{} tranformation?}
         }
-        \;
+
         \Comment{Case 1.2}
-        \For{$i \in \FUses(bb)$}{
-          \If{$i < p $}{
-            \Comment{LLVM: Add Segment(p) to LIS(u)}
-            % TODO: Unless u already contains that slot index
-            $E \gets E \cup \FEdge(p,i)$
-          }
+        \For{$i \in \FUses(bb) \mid \FIndex(i) < \FIndex(p)$}{
+          % TODO: Unless u already contains that slot index
+          $E \gets E \cup \FEdge(p,i)$\;
+          \Comment{LLVM: Add Segment(p) to LIS(u)}
         }
       }
-      \;
+
       \Comment{Case 2}
-      \If{$bb < \FBasicBlock(p)$}{
+      \If{$\FIndex(bb) < \FIndex(\FBasicBlock(p))$}{
+
         \Comment{Case 2.1}
+
         \Comment{Case 2.2}
       }
     }
   }
-  \;
   \Return{$E$}
 }
 \end{algorithm}
