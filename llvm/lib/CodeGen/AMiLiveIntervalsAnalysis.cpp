@@ -149,49 +149,50 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
 
             // CASE 1.2
             for (MachineInstr &MI2 : *MBB2) {
-              for (MachineOperand &MO : MI2.operands()) {
-                if (MO.isUse()) {
-                  // errs() << "Use operand: " << MO.getReg() << "\n";
+              for (MachineOperand &MO : MI2.all_uses()) {
+                // errs() << "Use operand: " << MO.getReg() << "\n";
 
-                  Register usedReg = MO.getReg();
+                Register usedReg = MO.getReg();
 
-                  // Check if the register is valid and not a special register
-                  if (usedReg.isVirtual()) {
-                    // Get the instruction that defines the virtual register
-                    MachineInstr *definingInst = MRI->getVRegDef(usedReg);
-                    if (definingInst) {
+                // Check if the register is valid and not a special register
+                if (usedReg.isVirtual()) {
+                  // Get the instruction that defines the virtual register
+                  MachineInstr *definingInst = MRI->getVRegDef(usedReg);
+                  if (definingInst) {
 
-                      assert(SI->hasIndex(*definingInst) && "TODO");
-                      SlotIndex definingIndex =
-                          SI->getInstructionIndex(*definingInst);
+                    assert(SI->hasIndex(*definingInst) && "TODO");
+                    SlotIndex definingIndex =
+                        SI->getInstructionIndex(*definingInst);
 
-                      assert(SI->hasIndex(*definingInst) && "TODO");
-                      if (definingIndex < SI->getInstructionIndex(MI)) {
-                        errs()
-                            << "CASE 2.2 " << usedReg
-                            << " is used in instruction: " << MI2
-                            << " and defined by instruction: " << *definingInst
-                            << "\n";
-                        // AddSegment(*MI2, *MI1);
-                        // errs() << LIS->getInterval(MI.getOperand(0).getReg())
-                        // << "\n";
-                      }
+                    assert(SI->hasIndex(*definingInst) && "TODO");
+                    if (definingIndex < SI->getInstructionIndex(MI)) {
+                      errs() << "CASE 2.2 " << usedReg
+                             << " is used in instruction: " << MI2
+                             << " and defined by instruction: " << *definingInst
+                             << "\n";
+                      // AddSegment(*MI2, *MI1);
+                      // errs() << LIS->getInterval(MI.getOperand(0).getReg())
+                      // << "\n";
                     }
-                  } else if (usedReg.isPhysical()) {
-                    // Physical registers are trickier because they may be
-                    // defined by multiple instructions, especially in low-level
-                    // code generation. If you are dealing with physical
-                    // registers, you typically need to track modifications
-                    // across instructions, which may involve target-specific
-                    // logic. For physical registers, we may need to track
-                    // through the definition This depends on the target's
-                    // constraints, but we can still check if it's a use.
-
-                    assert(false && "TODO");
-
-                    // You can further check for instructions modifying this
-                    // physical register.
                   }
+                } else if (usedReg.isPhysical()) {
+                  // Physical registers are trickier because they may be
+                  // defined by multiple instructions, especially in low-level
+                  // code generation. If you are dealing with physical
+                  // registers, you typically need to track modifications
+                  // across instructions, which may involve target-specific
+                  // logic. For physical registers, we may need to track
+                  // through the definition This depends on the target's
+                  // constraints, but we can still check if it's a use.
+
+#if 0
+                    errs() << MI2;
+                    // TODO
+                    assert(false && "TODO");
+#endif
+
+                  // You can further check for instructions modifying this
+                  // physical register.
                 }
               }
             }

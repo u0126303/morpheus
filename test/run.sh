@@ -9,7 +9,7 @@ LLC=../llvm/build/bin/llc
 #rm -f before.mir
 #rm -f after.mir
 
-#$CLANG -S -emit-llvm -target riscv32 test.c -o test.ll
+#$CLANG -S -O1 -emit-llvm -target riscv32 test.c -o test.ll
 #$LLC --stop-before=greedy test.ll -o before.mir
 
 $LLC --run-pass=greedy,virtregrewriter before.mir -o after.mir

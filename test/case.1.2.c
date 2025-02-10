@@ -1,11 +1,18 @@
 int test(int a, int b)
 {
-  int result;
+  extern char *p;
+  int result = 10;
 
-  if (a > b)
-    result = a + 7;
+  if (a > b) {
+    int v = b + 2;
+    int w = p[v];
+    result += w;
+  }
   else
-    result = a - 9;
+  {
+    int v = 3 + a;
+    result += v;
+  }
 
   return result;
 }
