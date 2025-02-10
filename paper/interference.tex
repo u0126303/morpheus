@@ -1,6 +1,7 @@
 \documentclass[12pt]{article}
 
 \usepackage[utf8]{inputenc}
+\usepackage{xcolor}
 \usepackage[plainruled,noline]{algorithm2e}
 
 \input{macros.tex}
@@ -26,8 +27,12 @@ How to compute the \AMi-induced edges of the interference graph.
 %              for all instructions i:
 %                 basic-block(i) < i
 %
+% - Defs(bb)
+%       returns all defs within basic block bb 
 % - Uses(bb)
-%       returns all uses withtin basic block bb 
+%       returns all uses within basic block bb 
+% - Uses(def)
+%       returns all uses of def
 % - Users(R, i)
 %       returns all uses of instruction i within region R
 % - Instructions(R)
@@ -45,6 +50,7 @@ How to compute the \AMi-induced edges of the interference graph.
 \begin{algorithm}
 \Fn{\FComputeAMiInterferenceEdges{$R$}}{
   \DontPrintSemicolon
+  %\SetCommentSty{\textcolor{blue}}
   \KwData{Secret-dependent region $R$}
   \KwResult{Set of \AMi-induced edges $E$}
   $E \gets \emptyset$\;
@@ -55,16 +61,16 @@ How to compute the \AMi-induced edges of the interference graph.
       \If{$\FIndex(bb) > \FIndex(\FBasicBlock(p))$}{
 
         \Comment{Case 1.1}
-        \For{$i \in \FUsers(R, p)$}{
-          \Assert{$\FIndex(i) < \FIndex(bb)$}\;
+        \For{$user \in \FUsers(R, p)$}{
+          \Assert{$\FIndex(user) < \FIndex(bb)$}\;
           \Comment{Else bug in \AMi{} tranformation?}
         }
 
         \Comment{Case 1.2}
-        \For{$i \in \FUses(bb) \mid \FIndex(i) < \FIndex(p)$}{
+        \For{$use \in \FUses(bb) \mid \FIndex(use) < \FIndex(p)$}{
           % TODO: Unless u already contains that slot index
-          $E \gets E \cup \FEdge(p,i)$\;
-          \Comment{LLVM: Add Segment(p) to LIS(u)}
+          $E \gets E \cup \{\FEdge(p,use)\}$\;
+          \Comment{LLVM: Add Segment(p) to LIS(use)}
         }
       }
 
@@ -72,6 +78,13 @@ How to compute the \AMi-induced edges of the interference graph.
       \If{$\FIndex(bb) < \FIndex(\FBasicBlock(p))$}{
 
         \Comment{Case 2.1}
+        \For{$def \in \FDefs(bb)$} {
+          \For{$use \in \FUses(def) \mid \FIndex(use) > \FIndex(p)$}{
+            % TODO: Unless u already contains that slot index
+            $E \gets E \cup \{\FEdge(def,p)\}$\;
+            \Comment{LLVM: Add Segment(def) to LIS(p)}
+          }
+        }
 
         \Comment{Case 2.2}
       }
@@ -80,5 +93,7 @@ How to compute the \AMi-induced edges of the interference graph.
   \Return{$E$}
 }
 \end{algorithm}
+
+\todo{What about spilling and splitting?}
 
 \end{document}
