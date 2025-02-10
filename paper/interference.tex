@@ -11,6 +11,32 @@
 
 How to compute \AMi-induced edges for the interference graph.
 
+% A secret-dependent region:
+%     - A tuple of (set(basic block), set(dir-edge), entry, exit)
+%     - Fully connected
+%     - exit block postdominates all blocks
+%     - terminator of entry is secret dependent
+
+% - Index(i), Index(bb)
+%      defines a total order between instructions and between basic blocks
+%         (determined by linearization algorithm)
+%
+%      the indexes are assigned such that 
+%              for all instructions i:
+%                 basic-block(i) < i
+%
+% - Users(R, i)
+%       returns all uses of instruction i within region R
+% - Instructions(R)
+%       returns the instructions of the region R
+% - PersistentInstructions(R):
+%       returns the persistent instructions of the region R
+% - BasicBlock(i)
+%       returns the basic block of the instruction i
+% - Connected(bb1, bb2)
+%        true if path from bb1 to bb2 or if path from bb2 to bb1
+%              (bb2 is reachable from bb1 or bb1 is reachable from bb2)
+
 \begin{algorithm}
 \Fn{\FComputeAMiInterferenceEdges{$R$}}{
   % R: Secret-dependent region (set of basic blocks)
