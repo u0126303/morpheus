@@ -2,20 +2,24 @@ LLC = ../llvm/build/bin/llc
 
 LLCFLAGS =
 LLCFLAGS += -mtriple=riscv32
-LLCFLAGS += -debug-only=ami-liveintervals
 LLCFLAGS += --run-pass=greedy,virtregrewriter
-LLCFLAGS += -print-slotindexes
+#LLCFLAGS += -stress-regalloc=1
 
 TESTS = 
 TESTS += case_1_2
 
-MIRS_BEFORE = $(patsubst %, %.before.mir, $(TESTS))
-MIRS_AFTER = $(patsubst %, %.after.mir, $(TESTS))
+MIRS = $(patsubst %, %.mir, $(TESTS))
+MIRS_ENABLE = $(patsubst %, %.enable.mir, $(TESTS))
+MIRS_DISABLE = $(patsubst %, %.disable.mir, $(TESTS))
 
-all: $(MIRS_AFTER)
+all: $(MIRS_DISABLE) $(MIRS_ENABLE)
 
-%.after.mir: %.mir
-	$(LLC) $(LLCFLAGS) $< -o $@
+%.enable.mir: %.mir
+	$(LLC) $(LLCFLAGS) -debug-only=ami-liveintervals $< -o $@
+
+%.disable.mir: %.mir
+	$(LLC) $(LLCFLAGS) --ami-disable-add-segment $< -o $@
 
 clean:
-	$(RM) $(MIRS_AFTER)
+	$(RM) $(MIRS_ENABLE)
+	$(RM) $(MIRS_DISABLE)

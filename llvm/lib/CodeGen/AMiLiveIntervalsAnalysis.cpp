@@ -15,22 +15,27 @@ using namespace llvm;
 
 #define DEBUG_TYPE "ami-liveintervals"
 
+static cl::opt<bool> FlagDisable("ami-disable-add-segment", cl::init(false),
+                                 cl::Hidden);
+
 AMiLiveIntervalsAnalysis::AMiLiveIntervalsAnalysis()
     : MachineFunctionPass(ID) {}
 
 void AMiLiveIntervalsAnalysis::printMIRWithSlotIndexes(MachineFunction &MF) {
+  LLVM_DEBUG(dbgs() << "------------------------------------\n");
   for (MachineBasicBlock &MBB : MF) {
-    errs() << "MBB #" << MBB.getNumber() << ":\n";
+    LLVM_DEBUG(dbgs() << "MBB #" << MBB.getNumber() << ":\n");
 
     for (MachineInstr &MI : MBB) {
       if (SI->hasIndex(MI)) {
-        errs() << "  [" << SI->getInstructionIndex(MI) << "] ";
+        LLVM_DEBUG(dbgs() << "  [" << SI->getInstructionIndex(MI) << "] ");
       } else {
-        errs() << "  [No SlotIndex] ";
+        LLVM_DEBUG(dbgs() << "  [???] ");
       }
       MI.print(errs());
     }
   }
+  LLVM_DEBUG(dbgs() << "------------------------------------\n");
 }
 
 std::vector<MachineBasicBlock *>
@@ -83,20 +88,31 @@ AMiLiveIntervalsAnalysis::findDisconnectedBlocks(MachineFunction &MF,
 
 void AMiLiveIntervalsAnalysis::AddSegment(MachineInstr &MI,
                                           MachineBasicBlock *MBB) {
-  if (MBB->instr_begin() != MBB->instr_end()) {
-    assert(MI.getOperand(0).isDef() && "TODO");
-    LIS->addSegmentToEndOfBlock(MI.getOperand(0).getReg(), *MBB->instr_begin());
+  if (!FlagDisable) {
+    if (MBB->instr_begin() != MBB->instr_end()) {
+      assert(MI.getOperand(0).isDef() && "TODO");
+      LIS->addSegmentToEndOfBlock(MI.getOperand(0).getReg(),
+                                  *MBB->instr_begin());
+    }
   }
 }
 
 void AMiLiveIntervalsAnalysis::AddSegment(MachineInstr &MI, MachineInstr &MI2) {
-  VNInfo *VNI;
-  assert(MI.getOperand(0).isDef() && "TODO");
-  LiveInterval &LI = LIS->getInterval(MI.getOperand(0).getReg());
-  VNI = LI.getVNInfoAt(LI.beginIndex()); // TODO: Is this correct?
-  SlotIndex I = SI->getInstructionIndex(MI2);
-  LiveInterval::Segment S(I, I.getNextIndex(), VNI);
-  LI.addSegment(S);
+  if (!FlagDisable) {
+    VNInfo *VNI;
+    assert(MI.getOperand(0).isDef() && "TODO");
+    Register R = MI.getOperand(0).getReg();
+    LiveInterval &LI = LIS->getInterval(R);
+    VNI = LI.getVNInfoAt(LI.beginIndex()); // TODO: Is this correct?
+    SlotIndex I = SI->getInstructionIndex(MI2);
+    LiveInterval::Segment S(I, I.getNextIndex(), VNI);
+    LLVM_DEBUG(dbgs() << "Adding segment to %" << R.virtReg2Index(R) << "\n");
+    LLVM_DEBUG(dbgs() << " BEFORE: \n");
+    LLVM_DEBUG(dbgs() << "  " << LI << "\n");
+    LI.addSegment(S);
+    LLVM_DEBUG(dbgs() << " AFTER: \n");
+    LLVM_DEBUG(dbgs() << "  " << LI << "\n");
+  }
 }
 
 /// Function to check if a register is used in a basic block with a SlotIndex >
@@ -134,24 +150,27 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
   SI = &getAnalysis<SlotIndexesWrapperPass>().getSI();
   LIS = &getAnalysis<LiveIntervalsWrapperPass>().getLIS();
 
+  if (!FlagDisable)
+    printMIRWithSlotIndexes(MF);
+
   for (MachineBasicBlock &MBB : MF) {
-    for (MachineInstr &MI : MBB) {
-      if (MI.getFlag(MI.Persistent)) {
+    for (MachineInstr &pMI : MBB) {
+      if (pMI.getFlag(pMI.Persistent)) {
         for (MachineBasicBlock *MBB2 : findDisconnectedBlocks(MF, &MBB)) {
 
           // CASE 1
           if (SI->getMBBStartIdx(MBB2) > SI->getMBBStartIdx(&MBB)) {
 
             // CASE 1.1
-            if (isRegisterUsedAfterSlotIndex(MI.getOperand(0).getReg(),
+            if (isRegisterUsedAfterSlotIndex(pMI.getOperand(0).getReg(),
                                              SI->getMBBEndIdx(MBB2))) {
-              LLVM_DEBUG(dbgs() << "ERROR: " << MI << ": " << MBB2->getName()
+              LLVM_DEBUG(dbgs() << "ERROR: " << pMI << ": " << MBB2->getName()
                                 << "(" << MBB2->getNumber() << ")" << "\n");
             }
 
             // CASE 1.2
-            for (MachineInstr &MI2 : *MBB2) {
-              for (MachineOperand &MO : MI2.all_uses()) {
+            for (MachineInstr &MI : *MBB2) {
+              for (MachineOperand &MO : MI.all_uses()) {
                 // errs() << "Use operand: " << MO.getReg() << "\n";
 
                 Register usedReg = MO.getReg();
@@ -167,12 +186,18 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                         SI->getInstructionIndex(*definingInst);
 
                     assert(SI->hasIndex(*definingInst) && "TODO");
-                    if (definingIndex < SI->getInstructionIndex(MI)) {
-                      LLVM_DEBUG(dbgs() << "CASE 2.2: "
-                                        << MI2 << " uses " << *definingInst << "\n");
-                      AddSegment(MI2, MI);
-                      // errs() << LIS->getInterval(MI.getOperand(0).getReg())
-                      // << "\n";
+                    if (definingIndex < SI->getInstructionIndex(pMI)) {
+                      LLVM_DEBUG(dbgs()
+                                 << "CASE 2.2: "
+                                 << "def:" << SI->getInstructionIndex(*definingInst)
+                                 << " --> "
+                                 << "p:" << SI->getInstructionIndex(pMI)
+                                 << " --> "
+                                 << "use:" << SI->getInstructionIndex(MI)
+                                 << "\n");
+                      AddSegment(*definingInst, pMI);
+                      // errs() << LIS->getInterval(pMI.getOperand(0).getReg())
+                      // << "\n";/a
                     }
                   }
                 } else if (usedReg.isPhysical()) {
@@ -209,8 +234,6 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
       }
     }
   }
-
-  // printMIRWithSlotIndexes(MF);
 
   return false;
 }
