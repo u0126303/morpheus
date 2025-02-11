@@ -12,35 +12,47 @@
 
 How to compute the \AMi-induced edges of the interference graph.
 
-% Assume SSA
+% Assume more-or-less SSA (i.e., after phi-elimination)
 
-% A secret-dependent region:
+% In a control-flow graph, a join point is a location where multiple control paths in the program converge.
+
+% A secret-dependent region: (see also Libra paper for definition)
 %     - A tuple of (set(basic block), set(dir-edge), entry, exit)
 %     - Fully connected
 %     - exit block postdominates all blocks
 %     - terminator of entry is secret dependent
 
-% - Index(i), Index(bb)
-%      defines a total order between instructions and between basic blocks
-%         according to some linearization function
-%                   (LLVM linearization, *not* AMi linearization)
+% - A linearization function defines a total order between instructions and
+%    between basic blocks.
+%    (LLVM linearization, *not* AMi linearization)
+% => Index(i), Index(bb) are functions to retrieve the index of an instruction
+%     and a basic block respectively within that order
+%   Note that index(i) can be compared with Index(bb) (Abuse of notation?)
 %
-%      the indexes are assigned such that 
-%              for all instructions i:
-%                 basic-block(i) < i
+% - Users(R, i)
+%       returns all users (instructions) of the register defined by
+%         instruction i within region R
+%
 % - Operands(i)
 %       returns all operands of the instruction
+% - Operands(bb)
+%       returns all operands of the instructions in a basic block
+
 % - IsUse(op)
 %       returns if the operand is a use
 %
-% - Defs(bb)
-%       returns all defs (instructions) within basic block bb 
+% - Def(op)
+%       returns the defining instruction of the given operand
+%          in SSA form this is a single instruction, in non-SSA form
+%          this can be multiple instructions
+%
 % - Uses(bb)
 %       returns all uses (instructions) within basic block bb 
+%
+% - Defs(bb)
+%       returns all defs (instructions) within basic block bb 
 % - Uses(def)
 %       returns all uses (instrucions) of def
-% - Users(R, i)
-%       returns all uses of instruction i within region R
 
 % - Instructions(R)
 %       returns the instructions of the region R
@@ -76,10 +88,12 @@ How to compute the \AMi-induced edges of the interference graph.
         }
 
         \Comment{Case 1.2}
-        \For{$use \in \FUses(bb) \mid \FIndex(use) < \FIndex(p)$}{
-          % TODO: Unless u already contains that slot index
-          $E \gets E \cup \{\FEdge(p,use)\}$\;
-          \Comment{LLVM: Add Segment(p) to LIS(use)}
+        \For{$op \in \FOperands(bb) \mid \FIsUse(op)$}{
+          \If{$\FIndex(\FDef(op)) < \FIndex(p)$}{
+            $E \gets E \cup \{\FEdge(p,\FDef(op))\}$\;
+            \Comment{LLVM: Add Segment(p) to LIS(use)}
+            % TODO: Unless u already contains that slot index
+          } 
         }
       }
 
@@ -89,9 +103,9 @@ How to compute the \AMi-induced edges of the interference graph.
         \Comment{Case 2.1}
         \For{$def \in \FDefs(bb)$} {
           \For{$use \in \FUses(def) \mid \FIndex(use) > \FIndex(p)$}{
-            % TODO: Unless u already contains that slot index
             $E \gets E \cup \{\FEdge(def,p)\}$\;
             \Comment{LLVM: Add Segment(def) to LIS(p)}
+            % TODO: Unless u already contains that slot index
           }
         }
 
@@ -99,9 +113,9 @@ How to compute the \AMi-induced edges of the interference graph.
         \For{$op \in \FOperands(p) \mid \FIsUse(op)$}{
           \If{$\FIndex(\FDef(op)) < \FIndex(bb)$} {
             \For{$i \in \FInstructions{bb}$} {
-              % TODO: Unless u already contains that slot index
               $E \gets E \cup \{\FEdge(\FDef{op},i)\}$\;
               \Comment{LLVM: }
+              % TODO: Unless u already contains that slot index
             }
           }
         }
