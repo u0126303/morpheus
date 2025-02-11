@@ -12,7 +12,6 @@ body: |
     %1:gpr = COPY $x10
     %2:gpr = COPY $x11
     BGE %1, %2, %bb.2
-    PseudoBR %bb.1
   
   bb.1:
     successors: %bb.3
