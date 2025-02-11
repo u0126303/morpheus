@@ -6,7 +6,8 @@ LLCFLAGS += --run-pass=greedy,virtregrewriter
 #LLCFLAGS += -stress-regalloc=1
 
 TESTS = 
-TESTS += case_1_2
+TESTS += test_1_2
+TESTS += test_2_1
 
 MIRS = $(patsubst %, %.mir, $(TESTS))
 MIRS_ENABLE = $(patsubst %, %.enable.mir, $(TESTS))
