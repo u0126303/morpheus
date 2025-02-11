@@ -1,9 +1,13 @@
 LLC = ../llvm/build/bin/llc
 
+EXTRA =
+
 LLCFLAGS =
 LLCFLAGS += -mtriple=riscv32
 LLCFLAGS += --run-pass=greedy,virtregrewriter
 #LLCFLAGS += -stress-regalloc=1
+
+LLCFLAGS += $(EXTRA)
 
 TESTS = 
 TESTS += test_1_2
