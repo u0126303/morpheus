@@ -12,4 +12,4 @@ LLC=../llvm/build/bin/llc
 #$CLANG -S -O1 -emit-llvm -target riscv32 case.1.2.c -o case.1.2.ll
 #$LLC --stop-before=greedy case.1.2.ll -o case.1.2.before.mir
 
-$LLC --run-pass=greedy,virtregrewriter case.1.2.before.mir -o case.1.2.after.mir
+$LLC --run-pass=greedy,virtregrewriter -mtriple=riscv32 case.1.2.before.mir -o case.1.2.after.mir
