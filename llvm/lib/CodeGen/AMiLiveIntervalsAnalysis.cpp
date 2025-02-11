@@ -89,8 +89,14 @@ void AMiLiveIntervalsAnalysis::AddSegment(MachineInstr &MI,
   if (!FlagDisable) {
     if (Range->instr_begin() != Range->instr_end()) {
       assert(MI.getOperand(0).isDef() && "TODO");
-      LIS->addSegmentToEndOfBlock(MI.getOperand(0).getReg(),
-                                  *Range->instr_begin());
+      Register R = MI.getOperand(0).getReg();
+      LiveInterval &LI = LIS->getInterval(R);
+      LLVM_DEBUG(dbgs() << "Adding segment to %" << R.virtReg2Index(R) << "\n");
+      LLVM_DEBUG(dbgs() << " BEFORE: \n");
+      LLVM_DEBUG(dbgs() << "  " << LI << "\n");
+      LIS->addSegmentToEndOfBlock(R, *Range->instr_begin());
+      LLVM_DEBUG(dbgs() << " AFTER: \n");
+      LLVM_DEBUG(dbgs() << "  " << LI << "\n");
     }
   }
 }
@@ -135,12 +141,6 @@ bool AMiLiveIntervalsAnalysis::isRegisterUsedAfterSlotIndex(
   return false;
 }
 
-#if 0
-  LiveInterval &LI = LIS->getInterval(MI.getOperand(0).getReg());
-  SlotIndex startIdx = Indexes.getMBBStartIdx(&MBB);
-  LI.liveAt(startIdx)
-#endif
-
 bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
   LLVM_DEBUG(
       dbgs() << "-------------------------------------------------------\n");
@@ -169,7 +169,14 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
             // CASE 1.1
             if (isRegisterUsedAfterSlotIndex(pMI.getOperand(0).getReg(),
                                              SI->getMBBEndIdx(MBB2))) {
-              // TODO: No segment to add?
+              // TODO: Is this a bug?
+              //       A persistent instruction should not be live after any
+              //       join point with MBB2 as this would violate program
+              //       correctness? It would override the assigned value in the
+              //       other path, unless the assignment comes after the
+              //       persistent instruction? A new temporary should have been
+              //       created by the transformation pass to deal with this
+              //       case?
               LLVM_DEBUG(dbgs()
                          << "CASE 2.1: "
                          << "p:" << SI->getInstructionIndex(pMI) << " --> "
@@ -193,7 +200,6 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                     SlotIndex definingIndex =
                         SI->getInstructionIndex(*definingInst);
 
-                    assert(SI->hasIndex(*definingInst) && "TODO");
                     if (definingIndex < SI->getInstructionIndex(pMI)) {
                       LLVM_DEBUG(
                           dbgs()
@@ -206,6 +212,8 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                       // errs() << LIS->getInterval(pMI.getOperand(0).getReg())
                       // << "\n";/a
                     }
+                  } else {
+                    // TODO
                   }
                 } else if (usedReg.isPhysical()) {
                   // Physical registers are trickier because they may be
@@ -241,18 +249,55 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                 if (MI.getOperand(0).isDef()) {
                   if (isRegisterUsedAfterSlotIndex(MI.getOperand(0).getReg(),
                                                    SI->getMBBEndIdx(&MBB))) {
-                    LLVM_DEBUG(dbgs() << "CASE 2.1: "
-                                      << "def:" << SI->getInstructionIndex(MI)
-                                      << " --> "
-                                      << "p:" << SI->getInstructionIndex(pMI)
-                                      << "\n");
-                    // TODO: No segment to add?
+                    LLVM_DEBUG(dbgs()
+                               << "CASE 2.1: "
+                               << "def:" << SI->getInstructionIndex(MI)
+                               << " --> "
+                               << "p:" << SI->getInstructionIndex(pMI) << "\n");
+
+                    {
+                      // TODO: No segment to add?
+                      LiveInterval &LI =
+                          LIS->getInterval(MI.getOperand(0).getReg());
+                      SlotIndex Idx = SI->getMBBEndIdx(&MBB);
+                      assert(LI.liveAt(Idx) && "TODO");
+                    }
                   }
                 }
               }
             }
 
             // CASE 2.2
+            // TODO: Refactor: This is mostly copy-paste from CASE 1.2
+            for (MachineOperand &MO : pMI.all_uses()) {
+
+              Register usedReg = MO.getReg();
+
+              if (usedReg.isVirtual()) {
+                MachineInstr *definingInst = MRI->getVRegDef(usedReg);
+                if (definingInst) {
+                  assert(SI->hasIndex(*definingInst) && "TODO");
+                  SlotIndex definingIndex =
+                      SI->getInstructionIndex(*definingInst);
+
+                  if (definingIndex < SI->getMBBStartIdx(MBB2)) {
+                    LLVM_DEBUG(dbgs() << "CASE 2.2: "
+                                      << "def:"
+                                      << SI->getInstructionIndex(*definingInst)
+                                      << " --> "
+                                      << "bb:" << MBB2->getNumber()
+                                      << " --> "
+                                      << "use: " << SI->getInstructionIndex(pMI)
+                                      << "\n");
+                    AddSegment(*definingInst, MBB2);
+                  } else {
+                    // TODO
+                  }
+                } else if (usedReg.isPhysical()) {
+                  // TODO
+                }
+              }
+            }
           }
         }
       }

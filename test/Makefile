@@ -8,6 +8,7 @@ LLCFLAGS += --run-pass=greedy,virtregrewriter
 TESTS = 
 TESTS += test_1_2
 TESTS += test_2_1
+TESTS += test_2_2
 
 MIRS = $(patsubst %, %.mir, $(TESTS))
 MIRS_ENABLE = $(patsubst %, %.enable.mir, $(TESTS))
