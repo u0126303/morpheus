@@ -69,11 +69,11 @@ How to compute the \AMi-induced edges of the interference graph.
 %        represents a directed edge from source u to target v
 
 \begin{algorithm}
-\Fn{\FComputeAMiInterferenceEdges{$R$}}{
+\Fn{\FComputeAMiInterferences{$R$}}{
   \DontPrintSemicolon
   %\SetCommentSty{\textcolor{blue}}
   \KwData{Secret-dependent region $R$}
-  \KwResult{Set of \AMi-induced edges $E$}
+  \KwResult{Set of \AMi-induced interference edges $E$}
   $E \gets \emptyset$\;
   \For{$p \in \FPersistentInstructions{R}$}{
     \For{$bb \in \FBasicBlocks{R} \mid \neg \FConnected(\FBasicBlock(p), bb)$}{
