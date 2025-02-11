@@ -9,7 +9,6 @@ namespace llvm {
 
 class AMiLiveIntervalsAnalysis : public MachineFunctionPass {
 public:
-
   static char ID; // Pass identification
 
   AMiLiveIntervalsAnalysis();
@@ -36,7 +35,7 @@ private:
 
   std::vector<MachineBasicBlock *>
   findDisconnectedBlocks(MachineFunction &MF, MachineBasicBlock *StartBB);
-  };
+};
 
 } // end namespace llvm
 

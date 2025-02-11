@@ -13,6 +13,8 @@
 
 using namespace llvm;
 
+#define DEBUG_TYPE "ami-liveintervals"
+
 AMiLiveIntervalsAnalysis::AMiLiveIntervalsAnalysis()
     : MachineFunctionPass(ID) {}
 
@@ -225,4 +227,4 @@ void AMiLiveIntervalsAnalysis::getAnalysisUsage(AnalysisUsage &AU) const {
 char AMiLiveIntervalsAnalysis::ID = 0;
 
 static RegisterPass<AMiLiveIntervalsAnalysis>
-    X("ami-liveintervals", "AMi Live Interval Analysis", false, false);
+    X(DEBUG_TYPE, "AMi Live Interval Analysis", false, false);
