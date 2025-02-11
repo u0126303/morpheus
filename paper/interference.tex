@@ -12,7 +12,7 @@
 
 How to compute the \AMi-induced edges of the interference graph.
 
-% Assume more-or-less SSA (i.e., after phi-elimination)
+% Not in SSA (i.e., after phi-elimination)
 
 % In a control-flow graph, a join point is a location where multiple control paths in the program converge.
 
@@ -32,28 +32,18 @@ How to compute the \AMi-induced edges of the interference graph.
 % - Users(R, i)
 %       returns all users (instructions) of the register defined by
 %         instruction i within region R
-%
 % - Operands(i)
 %       returns all operands of the instruction
 % - Operands(bb)
 %       returns all operands of the instructions in a basic block
-
 % - IsUse(op)
 %       returns if the operand is a use
-%
+% - IsDef(op)
+%       returns if the operand is a def
 % - Def(op)
 %       returns the defining instruction of the given operand
-%          in SSA form this is a single instruction, in non-SSA form
+%          for SSA form this is a single instruction, for non-SSA form
 %          this can be multiple instructions
-%
-% - Uses(bb)
-%       returns all uses (instructions) within basic block bb 
-%
-% - Defs(bb)
-%       returns all defs (instructions) within basic block bb 
-% - Uses(def)
-%       returns all uses (instrucions) of def
-
 % - Instructions(R)
 %       returns the instructions of the region R
 % - Instructions(bb)
@@ -83,16 +73,16 @@ How to compute the \AMi-induced edges of the interference graph.
 
         \Comment{Case 1.1}
         \For{$user \in \FUsers(R, p)$}{
-          \Assert{$\FIndex(user) < \FIndex(bb)$}\;
-          \Comment{Else bug in \AMi{} tranformation?}
+          \Comment{There should be nothing to do?}
+          %\Assert{$\FIndex(user) < \FIndex(bb)$}\;
+          %\Comment{Else bug in \AMi{} tranformation?}
         }
 
         \Comment{Case 1.2}
         \For{$op \in \FOperands(bb) \mid \FIsUse(op)$}{
           \If{$\FIndex(\FDef(op)) < \FIndex(p)$}{
-            $E \gets E \cup \{\FEdge(p,\FDef(op))\}$\;
-            \Comment{LLVM: Add Segment(p) to LIS(use)}
-            % TODO: Unless u already contains that slot index
+            $E \gets E \cup \{\FEdge(\FDef(op), p)\}$\;
+            \Comment{LLVM: Add Segment(Range(p)) to LIS(Def(op))}
           } 
         }
       }
@@ -101,11 +91,11 @@ How to compute the \AMi-induced edges of the interference graph.
       \If{$\FIndex(bb) < \FIndex(\FBasicBlock(p))$}{
 
         \Comment{Case 2.1}
-        \For{$def \in \FDefs(bb)$} {
-          \For{$use \in \FUses(def) \mid \FIndex(use) > \FIndex(p)$}{
-            $E \gets E \cup \{\FEdge(def,p)\}$\;
-            \Comment{LLVM: Add Segment(def) to LIS(p)}
-            % TODO: Unless u already contains that slot index
+        \For{$op \in \FOperands(bb) \mid \FIsDef(op)$}{
+          \For{$user \in \FUsers(\FDef(op)) \mid \FIndex(user) > \FIndex(p)$}{
+            \Comment{There should be nothing to do?}
+            %$E \gets E \cup \{\FEdge(\Def(op), p)\}$\;
+            %\Comment{LLVM: Add Segment(Range(p)) to LIS(Def(op))}
           }
         }
 
@@ -114,7 +104,7 @@ How to compute the \AMi-induced edges of the interference graph.
           \If{$\FIndex(\FDef(op)) < \FIndex(bb)$} {
             \For{$i \in \FInstructions{bb}$} {
               $E \gets E \cup \{\FEdge(\FDef{op},i)\}$\;
-              \Comment{LLVM: }
+              \Comment{LLVM: Add segment(bb) to LIS(p)}
               % TODO: Unless u already contains that slot index
             }
           }
@@ -126,6 +116,6 @@ How to compute the \AMi-induced edges of the interference graph.
 }
 \end{algorithm}
 
-\todo{What about spilling and splitting?}
+\todo{Add support for spilling and splitting.}
 
 \end{document}
