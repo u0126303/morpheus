@@ -127,8 +127,8 @@ bool AMiLiveIntervalsAnalysis::isRegisterUsedAfterSlotIndex(
 #endif
 
 bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
-  errs() << "Running AMiLiveIntervalsAnalysis on function: " << MF.getName()
-         << "\n";
+  LLVM_DEBUG(dbgs() << "Running AMiLiveIntervalsAnalysis on function: "
+                    << MF.getName() << "\n");
 
   MRI = &MF.getRegInfo();
   SI = &getAnalysis<SlotIndexesWrapperPass>().getSI();
@@ -145,8 +145,8 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
             // CASE 1.1
             if (isRegisterUsedAfterSlotIndex(MI.getOperand(0).getReg(),
                                              SI->getMBBEndIdx(MBB2))) {
-              errs() << "ERROR: " << MI << ": " << MBB2->getName() << "("
-                     << MBB2->getNumber() << ")" << "\n";
+              LLVM_DEBUG(dbgs() << "ERROR: " << MI << ": " << MBB2->getName()
+                                << "(" << MBB2->getNumber() << ")" << "\n");
             }
 
             // CASE 1.2
@@ -168,10 +168,8 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
 
                     assert(SI->hasIndex(*definingInst) && "TODO");
                     if (definingIndex < SI->getInstructionIndex(MI)) {
-                      errs() << "CASE 2.2 " << usedReg
-                             << " is used in instruction: " << MI2
-                             << " and defined by instruction: " << *definingInst
-                             << "\n";
+                      LLVM_DEBUG(dbgs() << "CASE 2.2: "
+                                        << MI2 << " uses " << *definingInst << "\n");
                       AddSegment(MI2, MI);
                       // errs() << LIS->getInterval(MI.getOperand(0).getReg())
                       // << "\n";
