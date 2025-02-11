@@ -44,6 +44,8 @@ How to compute the \AMi-induced edges of the interference graph.
 %       returns the defining instruction of the given operand
 %          for SSA form this is a single instruction, for non-SSA form
 %          this can be multiple instructions
+% - LiveAt(v, bb)
+%        return true if register v is live at bb
 % - Instructions(R)
 %       returns the instructions of the region R
 % - Instructions(bb)
@@ -57,6 +59,8 @@ How to compute the \AMi-induced edges of the interference graph.
 %              (bb2 is reachable from bb1 or bb1 is reachable from bb2)
 % - Edge(u, v)
 %        represents a directed edge from source u to target v
+
+\setlength{\algomargin}{0em}
 
 \begin{algorithm}
 \Fn{\FComputeAMiInterferences{$R$}}{
@@ -73,9 +77,8 @@ How to compute the \AMi-induced edges of the interference graph.
 
         \Comment{Case 1.1}
         \For{$user \in \FUsers(R, p)$}{
-          \Comment{There should be nothing to do?}
-          %\Assert{$\FIndex(user) < \FIndex(bb)$}\;
-          %\Comment{Else bug in \AMi{} tranformation?}
+          \Assert{$\FIndex(user) < \FIndex(bb)$}\;
+          \Comment{Else bug in \AMi{} tranformation?}
         }
 
         \Comment{Case 1.2}
@@ -93,9 +96,8 @@ How to compute the \AMi-induced edges of the interference graph.
         \Comment{Case 2.1}
         \For{$op \in \FOperands(bb) \mid \FIsDef(op)$}{
           \For{$user \in \FUsers(\FDef(op)) \mid \FIndex(user) > \FIndex(p)$}{
-            \Comment{There should be nothing to do?}
-            %$E \gets E \cup \{\FEdge(\Def(op), p)\}$\;
-            %\Comment{LLVM: Add Segment(Range(p)) to LIS(Def(op))}
+            \Assert{$\FLiveAt(op, \FBasicBlock(p))$}\;
+            \Comment{Else uninitialized var?}
           }
         }
 
