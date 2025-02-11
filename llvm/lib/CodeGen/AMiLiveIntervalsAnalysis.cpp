@@ -17,6 +17,7 @@ using namespace llvm;
 
 static cl::opt<bool> FlagDisable("ami-disable-add-segment", cl::init(false),
                                  cl::Hidden);
+static cl::opt<bool> FlagCFG("ami-view-cfg", cl::init(false), cl::Hidden);
 
 AMiLiveIntervalsAnalysis::AMiLiveIntervalsAnalysis()
     : MachineFunctionPass(ID) {}
@@ -155,6 +156,9 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
 
   printMIRWithSlotIndexes(MF);
 
+  if (FlagCFG)
+    MF.viewCFG();
+
   LLVM_DEBUG(
       dbgs() << "-------------------------------------------------------\n");
 
@@ -285,8 +289,7 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                                       << "def:"
                                       << SI->getInstructionIndex(*definingInst)
                                       << " --> "
-                                      << "bb:" << MBB2->getNumber()
-                                      << " --> "
+                                      << "bb:" << MBB2->getNumber() << " --> "
                                       << "use: " << SI->getInstructionIndex(pMI)
                                       << "\n");
                     AddSegment(*definingInst, MBB2);
