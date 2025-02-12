@@ -19,7 +19,7 @@ body: |
     successors: %bb.3
 
     %2:gpr = ADDI %0, 0
-    %3:gpr = ADDI %0, 0
+    %3:gpr = ADDI %1, 0
     PseudoBR %bb.3
   
   bb.2:

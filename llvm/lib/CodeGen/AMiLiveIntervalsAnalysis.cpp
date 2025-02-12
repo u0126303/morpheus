@@ -93,6 +93,7 @@ void AMiLiveIntervalsAnalysis::AddSegment(MachineInstr &MI,
       assert(MI.getOperand(0).isDef() && "TODO");
       Register R = MI.getOperand(0).getReg();
       LiveInterval &LI = LIS->getInterval(R);
+      // TODO: What is this VNI?
       VNInfo *VNI = LI.getVNInfoAt(SI->getMBBStartIdx(Range));
 
       LLVM_DEBUG(dbgs() << "Adding segment to %" << R.virtReg2Index(R) << "\n");
