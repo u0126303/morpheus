@@ -32,7 +32,7 @@ void AMiLiveIntervalsAnalysis::printMIRWithSlotIndexes(MachineFunction &MF) {
       } else {
         LLVM_DEBUG(dbgs() << "  [???] ");
       }
-      MI.print(errs());
+      LLVM_DEBUG(dbgs() << MI);
     }
   }
 }
