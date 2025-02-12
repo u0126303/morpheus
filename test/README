@@ -2,6 +2,9 @@
 #-debug-pass=Arguments
 #-debug-pass=Executions
 
+# To create CFG for a single test (e.g., test_1_2):
+$ make -B EXTRA=-ami-view-cfg test_1_2.enable.mir
+
 CLANG=../llvm/build/bin/clang
 LLC=../llvm/build/bin/llc
 
