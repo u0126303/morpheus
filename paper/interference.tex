@@ -16,7 +16,7 @@
 \begin{figure}[t!]
   \centering
   \includegraphics[width=0.5\textwidth]{cfg}
-  caption{\texttt{def-list} \brackets{\leftarrow\ \texttt{use-list}}}
+  \caption{\texttt{def-list} \brackets{\leftarrow\ \texttt{use-list}}}
 \end{figure}
 
 \begin{figure}[t!]
@@ -96,7 +96,7 @@ How to compute the \AMi-induced edges of the interference graph?
 
         \Comment{Case 1.1}
         \For{$user \in \FUsers(R, p)$}{
-          \Assert{$\FIndex(user) < \FIndex(bb)$}\;
+          \Assert{$\FIndex(user) < \FIndex(bb)\ \lor \FDefines(bb, p)$}\;
           \Comment{Else bug in \AMi{} tranformation?}
         }
 
