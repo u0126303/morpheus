@@ -27,13 +27,15 @@
   \label{fig:linearization-options}
 \end{figure}
 
-How to compute the \AMi-induced edges of the interference graph?
-
 \section{Algorithm}
 
-% Not in SSA (i.e., after phi-elimination)
+How to compute the \AMi-induced edges of the interference graph?
 
-% In a control-flow graph, a join point is a location where multiple control paths in the program converge.
+\subsection{Terminology}
+
+Linearizing a control-flow graph creates a total order among basic blocks and their instructions. Note that linearization differs from control-flow linearization. The former defines the arrangement of basic blocks in memory and establishes a total order, while the latter removes secret-dependent branches but does not necessarily create a total order.
+
+% In a control-flow graph, a join point is a location where multiple control paths in the program converge. There can be multiple join points between two disconnected basic blocks.
 
 % A secret-dependent region: (see also Libra paper for definition)
 %     - A tuple of (set(basic block), set(dir-edge), entry, exit)
@@ -78,6 +80,10 @@ How to compute the \AMi-induced edges of the interference graph?
 %              (bb2 is reachable from bb1 or bb1 is reachable from bb2)
 % - Edge(u, v)
 %        represents a directed edge from source u to target v
+
+\subsection{Algorithm}
+
+We cannot assume SSA form becasue algo is applied after phi-elimination.
 
 \setlength{\algomargin}{0em}
 
@@ -137,6 +143,7 @@ How to compute the \AMi-induced edges of the interference graph?
 }
 \end{algorithm}
 
+\todo{Does it generalize to arbitrary control-flow graphs?}
 \todo{Add support for spilling and splitting.}
 
 \end{document}
