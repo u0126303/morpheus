@@ -89,13 +89,19 @@ void AMiLiveIntervalsAnalysis::AddSegment(MachineInstr &MI,
                                           MachineBasicBlock *Range) {
   if (!FlagDisable) {
     if (Range->instr_begin() != Range->instr_end()) {
+
       assert(MI.getOperand(0).isDef() && "TODO");
       Register R = MI.getOperand(0).getReg();
       LiveInterval &LI = LIS->getInterval(R);
+      VNInfo *VNI = LI.getVNInfoAt(SI->getMBBStartIdx(Range));
+
       LLVM_DEBUG(dbgs() << "Adding segment to %" << R.virtReg2Index(R) << "\n");
       LLVM_DEBUG(dbgs() << " BEFORE: \n");
       LLVM_DEBUG(dbgs() << "  " << LI << "\n");
-      LIS->addSegmentToEndOfBlock(R, *Range->instr_begin());
+      // if (!LI.liveAt(Start))
+      LI.addSegment(LiveRange::Segment(SI->getMBBStartIdx(Range),
+                                       SI->getMBBEndIdx(Range), VNI));
+      // LIS->addSegmentToEndOfBlock(R, *Range->instr_begin());
       LLVM_DEBUG(dbgs() << " AFTER: \n");
       LLVM_DEBUG(dbgs() << "  " << LI << "\n");
     }
