@@ -189,7 +189,7 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
               //       created by the transformation pass to deal with this
               //       case?
               LLVM_DEBUG(dbgs()
-                         << "CASE 2.1: "
+                         << "CASE 1.1: "
                          << "p:" << SI->getInstructionIndex(pMI) << " --> "
                          << "bb:" << MBB2->getNumber() << "\n");
             }
@@ -264,7 +264,9 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                                << "CASE 2.1: "
                                << "def:" << SI->getInstructionIndex(MI)
                                << " --> "
-                               << "p:" << SI->getInstructionIndex(pMI) << "\n");
+                               << "p:" << SI->getInstructionIndex(pMI) 
+                               << " --> ..."
+                               << "\n");
 
                     {
                       // TODO: No segment to add?

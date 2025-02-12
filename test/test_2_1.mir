@@ -25,7 +25,6 @@ body: |
     successors: %bb.3
 
     %2:gpr = persistent ADDI $x0, 0
-    %1:gpr = ADDI %0, 0
   
   bb.3:
     $x10 = ADDI %1, 0
