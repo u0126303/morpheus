@@ -13,23 +13,29 @@
 
 \begin{document}
 
-\begin{figure}[t!]
+\section{Problem Statement}
+
+How to augment the interference graph to preserve program semantics for AMi-linearized programs?
+
+\pagebreak
+
+\section{Running Example}
+
+\begin{figure}[h!]
   \centering
-  \includegraphics[width=0.5\textwidth]{cfg}
+  \includegraphics[width=0.5\textwidth]{cases/cfg}
   \caption{\texttt{def-list} \brackets{\leftarrow\ \texttt{use-list}}}
 \end{figure}
 
-\begin{figure}[t!]
+\begin{figure}[h!]
   \centering
-  \subfloat[BB0 < \textcolor{myred}{BB1} < \textcolor{myblue}{BB2} < BB3]{\includegraphics[width=0.35\textwidth]{lin1}} \hfill
-  \subfloat[BB0 < \textcolor{myblue}{BB2} < \textcolor{myred}{BB1} < BB3]{\includegraphics[width=0.35\textwidth]{lin2}}
+  \subfloat[CASE 1\\BB0 < \textcolor{myred}{BB1} < \textcolor{myblue}{BB2} < BB3]{\includegraphics[width=0.35\textwidth]{cases/lin1}} \hfill
+  \subfloat[CASE 2\\BB0 < \textcolor{myblue}{BB2} < \textcolor{myred}{BB1} < BB3]{\includegraphics[width=0.35\textwidth]{cases/lin2}}
   \caption{Linearization options}
   \label{fig:linearization-options}
 \end{figure}
 
 \section{Algorithm}
-
-How to compute the \AMi-induced edges of the interference graph?
 
 \subsection{Terminology}
 
@@ -145,5 +151,23 @@ We cannot assume SSA form becasue algo is applied after phi-elimination.
 
 \todo{Does it generalize to arbitrary control-flow graphs?}
 \todo{Add support for spilling and splitting.}
+
+\pagebreak
+
+\section{Examples}
+
+\subsection{Case 1.1}
+
+\subsection{Case 1.2}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{cases/case_1_2}
+  \caption{Case 1.2}
+\end{figure}
+
+\subsection{Case 2.1}
+
+\subsection{Case 2.2}
 
 \end{document}
