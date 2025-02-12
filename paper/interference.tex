@@ -6,6 +6,9 @@
 \usepackage{graphicx}
 \usepackage{subfig}
 
+\definecolor{myred}{rgb}{1, 0, 0}
+\definecolor{myblue}{rgb}{0.22, 0.42, 0.63}
+
 \input{macros.tex}
 
 \begin{document}
@@ -18,8 +21,8 @@
 
 \begin{figure}[t!]
   \centering
-  \subfloat[Option 1]{\includegraphics[width=0.35\textwidth]{lin1}} \hfill
-  \subfloat[Option 2]{\includegraphics[width=0.35\textwidth]{lin2}}
+  \subfloat[BB0 < \textcolor{myred}{BB1} < \textcolor{myblue}{BB2} < BB3]{\includegraphics[width=0.35\textwidth]{lin1}} \hfill
+  \subfloat[BB0 < \textcolor{myblue}{BB2} < \textcolor{myred}{BB1} < BB3]{\includegraphics[width=0.35\textwidth]{lin2}}
   \caption{Linearization options}
   \label{fig:linearization-options}
 \end{figure}
