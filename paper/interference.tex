@@ -39,9 +39,18 @@ How to augment the interference graph to preserve program semantics for AMi-line
 
 \subsection{Terminology}
 
-Linearizing a control-flow graph creates a total order among basic blocks and their instructions. Note that linearization differs from control-flow linearization. The former defines the arrangement of basic blocks in memory and establishes a total order, while the latter removes secret-dependent branches but does not necessarily create a total order.
+\paragraph{Linearization}
 
-% In a control-flow graph, a join point is a location where multiple control paths in the program converge. There can be multiple join points between two disconnected basic blocks.
+Linearizing a control-flow graph creates a total order among basic blocks and their instructions.
+Note that linearization differs from control-flow linearization.
+The former defines the arrangement of basic blocks in memory and establishes a total order, while the latter removes secret-dependent branches but does not necessarily create a total order.
+
+\paragraph{Join point}
+
+In a control-flow graph, a join point is a location where multiple control paths in the program converge.
+There can be multiple join points between two disconnected basic blocks.
+
+\paragraph{Secret-dependent region}
 
 % A secret-dependent region: (see also Libra paper for definition)
 %     - A tuple of (set(basic block), set(dir-edge), entry, exit)
@@ -49,47 +58,60 @@ Linearizing a control-flow graph creates a total order among basic blocks and th
 %     - exit block postdominates all blocks
 %     - terminator of entry is secret dependent
 
-% - A linearization function defines a total order between instructions and
-%    between basic blocks.
-%    (LLVM linearization, *not* AMi linearization)
-% => Index(i), Index(bb) are functions to retrieve the index of an instruction
-%     and a basic block respectively within that order
-%   Note that index(i) can be compared with Index(bb) (Abuse of notation?)
-%
-% - Users(R, i)
-%       returns all users (instructions) of the register defined by
-%         instruction i within region R
-% - Operands(i)
-%       returns all operands of the instruction
-% - Operands(bb)
-%       returns all operands of the instructions in a basic block
-% - IsUse(op)
-%       returns if the operand is a use
-% - IsDef(op)
-%       returns if the operand is a def
-% - Def(op)
-%       returns the defining instruction of the given operand
-%          for SSA form this is a single instruction, for non-SSA form
-%          this can be multiple instructions
-% - LiveAt(v, bb)
-%        return true if register v is live at bb
-% - Instructions(R)
-%       returns the instructions of the region R
-% - Instructions(bb)
-%       returns the instructions of the basic block bb
-% - PersistentInstructions(R):
-%       returns the persistent instructions of the region R
-% - BasicBlock(i)
-%       returns the basic block of the instruction i
-% - Connected(bb1, bb2)
-%        true if path from bb1 to bb2 or if path from bb2 to bb1
-%              (bb2 is reachable from bb1 or bb1 is reachable from bb2)
-% - Edge(u, v)
-%        represents a directed edge from source u to target v
+\subsection{Helper Functions}
+
+\paragraph{Index(v)}
+
+Functions to retrieve the index of an instruction and a basic block within that order defined by the applied lineariation.
+% Note that index(i) can be compared with Index(bb) (Abuse of notation?)
+
+\paragraph{Users(R, i)}
+
+Returns all users (instructions) of the register defined by instruction i within region R.
+
+\paragraph{Operands(v)}
+
+Returns all operands of an instruction or all operands of the instruction in a basic block.
+
+\paragraph{IsUse(op)}
+
+Returns if the operand is a use
+
+\paragraph{IsDef(op)}
+
+Returns if the operand is a def
+
+\paragraph{Def(op)}
+
+Returns the defining instruction of the given operand.
+For SSA form this is a single instruction.
+For non-SSA form this can be multiple instructions.
+
+\paragraph{LiveAt(v, bb)}
+
+Return true if register v is live at bb
+
+\paragraph{Instructions(R)}
+
+Returns the instructions of the region.
+A region can be a single basic block.
+
+\paragraph{BasicBlock(i)}
+
+Returns the basic block of the instruction i
+
+\paragraph{Connected(bb1, bb2)}
+
+Returns true if path from bb1 to bb2 or if path from bb2 to bb1.
+(i.e., bb2 is reachable from bb1 or bb1 is reachable from bb2)
+
+\paragraph{Edge(u, v)}
+
+Represents a directed edge from source u to target v;
 
 \subsection{Algorithm}
 
-We cannot assume SSA form becasue algo is applied after phi-elimination.
+The algorithm is applied after phi-elimination, meaning that the SSA form is not used.
 
 \setlength{\algomargin}{0em}
 
@@ -100,7 +122,7 @@ We cannot assume SSA form becasue algo is applied after phi-elimination.
   \KwData{Secret-dependent region $R$}
   \KwResult{Set of \AMi-induced interference edges $E$}
   $E \gets \emptyset$\;
-  \For{$p \in \FPersistentInstructions{R}$}{
+  \For{$p \in \FInstructions{R}$ \mid \FIsPersistent(p)}{
     \For{$bb \in \FBasicBlocks{R} \mid \neg \FConnected(\FBasicBlock(p), bb)$}{
 
       \Comment{Case 1}
@@ -149,16 +171,16 @@ We cannot assume SSA form becasue algo is applied after phi-elimination.
 }
 \end{algorithm}
 
-\todo{Does it generalize to arbitrary control-flow graphs?}
-\todo{Add support for spilling and splitting.}
-
 \pagebreak
 
+\section{Issues}
+
+\begin{itemize}
+  \item Does the algorithm generalize to arbitrary control-flow graphs?
+  \item Add support for spilling and splitting.
+\end{itemize}
+
 \section{Examples}
-
-\subsection{Case 1.1}
-
-\subsection{Case 1.2}
 
 \begin{figure}[h!]
   \centering
@@ -166,8 +188,10 @@ We cannot assume SSA form becasue algo is applied after phi-elimination.
   \caption{Case 1.2}
 \end{figure}
 
-\subsection{Case 2.1}
-
-\subsection{Case 2.2}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{examples/case_2_2}
+  \caption{Case 2.2}
+\end{figure}
 
 \end{document}
