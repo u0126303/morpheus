@@ -3,14 +3,28 @@
 \usepackage[utf8]{inputenc}
 \usepackage{xcolor}
 \usepackage[plainruled,noline]{algorithm2e}
+\usepackage{graphicx}
+\usepackage{subfig}
 
 \input{macros.tex}
 
 \begin{document}
 
-\section{Register Allocation}
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{cfg}
+  \caption{Control-flow graph}
+\end{figure}
 
-How to compute the \AMi-induced edges of the interference graph.
+\begin{figure}[t!]
+  \centering
+  \subfloat[Option 1]{\includegraphics[width=0.35\textwidth]{lin1}} \hfill
+  \subfloat[Option 2]{\includegraphics[width=0.35\textwidth]{lin2}}
+  \caption{Linearization options}
+  \label{fig:linearization-options}
+\end{figure}
+
+How to compute the \AMi-induced edges of the interference graph?
 
 % Not in SSA (i.e., after phi-elimination)
 
