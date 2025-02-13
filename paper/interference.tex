@@ -160,7 +160,6 @@ The algorithm is applied after phi-elimination, meaning that the SSA form is not
             \For{$i \in \FInstructions{bb}$} {
               $E \gets E \cup \{\FEdge(\FDef{op},i)\}$\;
               \Comment{LLVM: Add segment(bb) to LIS(p)}
-              % TODO: Unless u already contains that slot index
             }
           }
         }
@@ -176,8 +175,11 @@ The algorithm is applied after phi-elimination, meaning that the SSA form is not
 \section{Issues}
 
 \begin{itemize}
-  \item Does the algorithm generalize to arbitrary control-flow graphs?
-  \item Add support for spilling and splitting.
+  \item
+    Does the algorithm generalize to arbitrary control-flow graphs?
+    Add more tests for each of the four categories to test edge cases.
+  \item 
+    Add support for spilling and splitting.
 \end{itemize}
 
 \section{Examples}
@@ -191,7 +193,8 @@ The algorithm is applied after phi-elimination, meaning that the SSA form is not
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.35\textwidth]{examples/case_2_1}
+  \subfloat[Case 1.1]{\includegraphics[width=0.35\textwidth]{examples/case_1_1}} \hfill
+  \subfloat[Case 2.1]{\includegraphics[width=0.35\textwidth]{examples/case_2_1}}
   \caption{Cases X.1}
 \end{figure}
 
