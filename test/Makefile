@@ -14,6 +14,7 @@ LITFLAGS =
 LITFLAGS += -v
 
 TESTS = 
+TESTS += test_1_1
 TESTS += test_1_2
 TESTS += test_2_1
 TESTS += test_2_2

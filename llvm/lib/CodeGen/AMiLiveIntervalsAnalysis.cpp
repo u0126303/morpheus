@@ -190,8 +190,9 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
               //       case?
               LLVM_DEBUG(dbgs()
                          << "CASE 1.1: "
-                         << "p:" << SI->getInstructionIndex(pMI) << " --> "
-                         << "bb:" << MBB2->getNumber() << "\n");
+                         << "pdef:" << SI->getInstructionIndex(pMI) << " --> "
+                         << "disconn-bb:" << MBB2->getNumber()
+                         << " --> use: ...\n");
             }
 
             // CASE 1.2
@@ -217,8 +218,8 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                           << "CASE 1.2: "
                           << "def:" << SI->getInstructionIndex(*definingInst)
                           << " --> "
-                          << "p:" << SI->getInstructionIndex(pMI) << " --> "
-                          << "use:" << SI->getInstructionIndex(MI) << "\n");
+                          << "p:" << SI->getInstructionIndex(pMI)
+                          << " --> use:" << SI->getInstructionIndex(MI) << "\n");
                       AddSegment(*definingInst, pMI);
                       // errs() << LIS->getInterval(pMI.getOperand(0).getReg())
                       // << "\n";/a
@@ -265,9 +266,7 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                                << "def:" << SI->getInstructionIndex(MI)
                                << " --> "
                                << "p:" << SI->getInstructionIndex(pMI) 
-                               << " --> ..."
-                               << "\n");
-
+                               << " --> use: ...\n");
                     {
                       // TODO: No segment to add?
                       LiveInterval &LI =
@@ -299,7 +298,7 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                                       << SI->getInstructionIndex(*definingInst)
                                       << " --> "
                                       << "bb:" << MBB2->getNumber() << " --> "
-                                      << "use: " << SI->getInstructionIndex(pMI)
+                                      << "puse: " << SI->getInstructionIndex(pMI)
                                       << "\n");
                     AddSegment(*definingInst, MBB2);
                   } else {
