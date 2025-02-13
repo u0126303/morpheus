@@ -297,7 +297,7 @@ bool AMiLiveIntervalsAnalysis::runOnMachineFunction(MachineFunction &MF) {
                                       << "def:"
                                       << SI->getInstructionIndex(*definingInst)
                                       << " --> "
-                                      << "bb:" << MBB2->getNumber() << " --> "
+                                      << "disconn-bb:" << MBB2->getNumber() << " --> "
                                       << "puse: " << SI->getInstructionIndex(pMI)
                                       << "\n");
                     AddSegment(*definingInst, MBB2);
