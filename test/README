@@ -1,19 +1,44 @@
-# To print the passes that are scheduled / run
-#-debug-pass=Arguments
-#-debug-pass=Executions
-
-# To create CFG for a single test (e.g., test_1_2):
-$ make -B EXTRA=-ami-view-cfg test_1_2.enable.mir
-
 CLANG=../llvm/build/bin/clang
 LLC=../llvm/build/bin/llc
 
+------------------------------------------------------
+Command-line options of AMiLiveIntervalsAnalysis pass:
+------------------------------------------------------
+
 -debug-only=ami-liveintervals
 
-$CLANG -S -O1 -emit-llvm -target riscv32 test.c -o test.ll
+-ami-disable-add-segment
 
-$LLC --stop-before=greedy test.ll -o test.mir
+-ami-view-cfg
 
-$LLC -mtriple=riscv32 --run-pass=greedy,virtregrewriter test.mir -o test.after.mir
+---------
+Toolchain:
+---------
 
-$LLC -mtriple=riscv32 test.mir --start-after=greedy -o test.s
+* To print the passes that are scheduled / run:
+
+  -debug-pass=Arguments          (scheduled)
+  -debug-pass=Executions         (run)
+
+* Emit LLVM IR:
+
+  clang -S -O1 -emit-llvm -target riscv32 test.c -o test.ll
+
+* Compile LLVM IR but stop before regalloc:
+
+  llc --stop-before=greedy test.ll -o test.mir
+
+* Only run greedy register allocator:
+
+  llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter in.mir -o out.mir
+
+* To create assembly file starting from regalloc pass:
+
+  llc -mtriple=riscv32 test.mir --start-after=greedy -o test.s
+
+Makefile:
+--------
+
+- To create CFG for a single test (e.g., test_1_2):
+
+  $ make test_1_2.cfg
