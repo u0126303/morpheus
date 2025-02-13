@@ -1,4 +1,5 @@
 LLC = ../llvm/build/bin/llc
+LIT = ../llvm/build/bin/llvm-lit
 
 EXTRA =
 
@@ -9,6 +10,9 @@ LLCFLAGS += --run-pass=greedy,virtregrewriter
 
 LLCFLAGS += $(EXTRA)
 
+LITFLAGS = 
+LITFLAGS += -v
+
 TESTS = 
 TESTS += test_1_2
 TESTS += test_2_1
@@ -17,6 +21,7 @@ TESTS += test_2_2
 MIRS = $(patsubst %, %.mir, $(TESTS))
 MIRS_ENABLE = $(patsubst %, %.enable.mir, $(TESTS))
 MIRS_DISABLE = $(patsubst %, %.disable.mir, $(TESTS))
+LITS = $(patsubst %, %.lit, $(TESTS))
 
 all: $(MIRS_DISABLE) $(MIRS_ENABLE)
 
@@ -26,6 +31,10 @@ all: $(MIRS_DISABLE) $(MIRS_ENABLE)
 %.disable.mir: %.mir
 	$(LLC) $(LLCFLAGS) --ami-disable-add-segment $< -o $@
 
+%.lit: %.mir
+	$(LIT) $(LITFLAGS) $< 2>&1 | tee $@
+
 clean:
 	$(RM) $(MIRS_ENABLE)
 	$(RM) $(MIRS_DISABLE)
+	$(RM) $(LITS)
