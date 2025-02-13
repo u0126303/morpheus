@@ -8,11 +8,12 @@ $ make -B EXTRA=-ami-view-cfg test_1_2.enable.mir
 CLANG=../llvm/build/bin/clang
 LLC=../llvm/build/bin/llc
 
-#rm -f case.1.2.ll
-#rm -f case.1.2.before.mir
-#rm -f case.1.2.after.mir
+-debug-only=ami-liveintervals
 
-#$CLANG -S -O1 -emit-llvm -target riscv32 case.1.2.c -o case.1.2.ll
-#$LLC --stop-before=greedy case.1.2.ll -o case.1.2.before.mir
+$CLANG -S -O1 -emit-llvm -target riscv32 test.c -o test.ll
 
-$LLC --run-pass=greedy,virtregrewriter -mtriple=riscv32 case.1.2.before.mir -o case.1.2.after.mir
+$LLC --stop-before=greedy test.ll -o test.mir
+
+$LLC -mtriple=riscv32 --run-pass=greedy,virtregrewriter test.mir -o test.after.mir
+
+$LLC -mtriple=riscv32 test.mir --start-after=greedy -o test.s
