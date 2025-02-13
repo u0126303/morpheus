@@ -1,4 +1,5 @@
-# RUN: ../llvm/build/bin/llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter %s -o - | ../llvm/build/bin/FileCheck %s 
+# RUN: ../llvm/build/bin/llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter %s -o - | ../llvm/build/bin/FileCheck %s -check-prefix=ON
+# RUN: ../llvm/build/bin/llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter --ami-disable-add-segment %s -o - | ../llvm/build/bin/FileCheck %s -check-prefix=OFF
 ---
 name: test_1_2
 tracksRegLiveness: true
@@ -19,17 +20,21 @@ body: |
   bb.1:
     successors: %bb.3
 
-    ; CHECK: $x12 =
-    ; CHECK-NEXT: $x11 =
     %2:gpr = persistent ADDI %0, 0
     %3:gpr = ADDI %1, 0
+    ; ON:      $x12 =
+    ; OFF:     $x10 =
+
+    ; ON-NEXT:  $x11 =
+    ; OFF-NEXT: $x11 =
     PseudoBR %bb.3
   
   bb.2:
     successors: %bb.3
 
-    ; CHECK: $x10 =
     %4:gpr = ADDI %0, 0
+    ; ON : $x10 =
+    ; OFF: $x10 =
   
   bb.3:
     $x10 = ADDI $x0, 0
