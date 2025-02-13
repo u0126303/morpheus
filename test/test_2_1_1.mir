@@ -1,0 +1,33 @@
+---
+name: test_2_1_1
+tracksRegLiveness: true
+noPhis: true
+isSSA: false
+liveins:
+  - { reg: '$x10', virtual-reg: '%0' }
+  - { reg: '$x11', virtual-reg: '%1' }
+body: |
+  bb.0:
+    successors: %bb.1, %bb.2
+    liveins: $x10, $x11
+  
+    %0:gpr = COPY $x10
+    %1:gpr = COPY $x11
+    BGE %0, %1, %bb.2
+  
+  bb.1:
+    successors: %bb.3
+
+    %2:gpr = ADDI %0, 0
+    PseudoBR %bb.3
+  
+  bb.2:
+    successors: %bb.3
+
+    %3:gpr = persistent ADDI $x0, 0
+    %2:gpr = ADDI %1, 0
+  
+  bb.3:
+    $x10 = ADDI %2, 0
+    PseudoRET implicit $x10
+...
