@@ -41,7 +41,7 @@ How to augment the interference graph to preserve program semantics for AMi-line
 
 \paragraph{Linearization}
 
-Linearizing a control-flow graph creates a total order among basic blocks and their instructions.
+Linearizing a control-flow graph creates a total, topological order among basic blocks and their instructions.
 Note that linearization differs from control-flow linearization.
 The former defines the arrangement of basic blocks in memory and establishes a total order, while the latter removes secret-dependent branches but does not necessarily create a total order.
 
