@@ -30,11 +30,16 @@ Toolchain:
 
 * Only run greedy register allocator:
 
-  llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter in.mir -o out.mir
+  llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter,postrapseudos in.mir -o out.mir
 
 * To create assembly file starting from regalloc pass:
 
-  llc -mtriple=riscv32 test.mir --start-after=greedy -o test.s
+  - Run all passes
+    llc -mtriple=riscv32 test.mir --start-after=greedy -o test.s
+
+  - Directly emit assembly (run as few passes as possible after regalloc)
+
+  - llc -mtriple=riscv32 test_1_2.enable.mir --start-after=machine-opt-remark-emitter
 
 Makefile:
 --------

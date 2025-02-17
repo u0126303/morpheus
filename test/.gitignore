@@ -1,4 +1,5 @@
 *.enable.mir
 *.disable.mir
 *.lit
+*.s
 .lit_test_times.txt

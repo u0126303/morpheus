@@ -5,8 +5,13 @@ EXTRA =
 
 LLCFLAGS =
 LLCFLAGS += -mtriple=riscv32
-LLCFLAGS += --run-pass=greedy,virtregrewriter
 #LLCFLAGS += -stress-regalloc=1
+
+# Only run register allocater
+LLCREGALLOC += --run-pass=greedy,virtregrewriter,postrapseudos
+
+# Directly emit assembly
+LLCEMIT += --start-after=machine-opt-remark-emitter
 
 LLCFLAGS += $(EXTRA)
 
@@ -26,15 +31,19 @@ TESTS += test_2_2
 MIRS = $(patsubst %, %.mir, $(TESTS))
 MIRS_ENABLE = $(patsubst %, %.enable.mir, $(TESTS))
 MIRS_DISABLE = $(patsubst %, %.disable.mir, $(TESTS))
+RISCVS = $(patsubst %, %.s, $(TESTS))
 LITS = $(patsubst %, %.lit, $(TESTS))
 
-all: $(MIRS_DISABLE) $(MIRS_ENABLE)
+all: $(MIRS_DISABLE) $(MIRS_ENABLE) $(RISCVS)
 
 %.enable.mir: %.mir
-	$(LLC) $(LLCFLAGS) -debug-only=ami-liveintervals $< -o $@
+	$(LLC) $(LLCFLAGS) $(LLCREGALLOC) -debug-only=ami-liveintervals $< -o $@
 
 %.disable.mir: %.mir
-	$(LLC) $(LLCFLAGS) --ami-disable-add-segment $< -o $@
+	$(LLC) $(LLCFLAGS) $(LLCREGALLOC) --ami-disable-add-segment $< -o $@
+
+%.s: %.enable.mir
+	$(LLC) $(LLCFLAGS) $(LLCEMIT) $< -o $@
 
 %.lit: %.mir
 	$(LIT) $(LITFLAGS) $< 2>&1 | tee $@
