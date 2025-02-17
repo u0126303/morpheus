@@ -56,3 +56,4 @@ clean:
 	$(RM) $(MIRS_ENABLE)
 	$(RM) $(MIRS_DISABLE)
 	$(RM) $(LITS)
+	$(RM) $(RISCVS)
