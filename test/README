@@ -44,6 +44,10 @@ Toolchain:
 Makefile:
 --------
 
+- To run the regresession tests:
+
+  make test
+
 - To create CFG for a single test (e.g., test_1_2):
 
-  $ make test_1_2.cfg
+  make test_1_2.cfg
