@@ -49,6 +49,11 @@ all: $(MIRS_DISABLE) $(MIRS_ENABLE) $(RISCVS) $(LITS)
 %.lit: %.mir
 	$(LIT) $(LITFLAGS) $< 2>&1 | tee $@
 
+.PHONY: %.test
+test:
+	$(MAKE) clean
+	$(LIT) .
+
 .PHONY: %.cfg
 %.cfg: %.mir
 	$(LLC) $(LLCFLAGS) -ami-view-cfg $< -o - > /dev/null
