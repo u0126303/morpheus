@@ -1,3 +1,5 @@
+# RUN: ../llvm/build/bin/llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter %s -o - | ../llvm/build/bin/FileCheck %s
+# RUN: ../llvm/build/bin/llc -mtriple=riscv32 --run-pass=greedy,virtregrewriter --ami-disable-add-segment %s -o - | ../llvm/build/bin/FileCheck %s
 ---
 name: test_2_1_1
 tracksRegLiveness: true
@@ -15,18 +17,24 @@ body: |
     %1:gpr = COPY $x11
     BGE %0, %1, %bb.2
   
+    ; CHECK: bb.1:
   bb.1:
     successors: %bb.3
 
     %2:gpr = ADDI %0, 0
+    ; CHECK: $x10 =
     PseudoBR %bb.3
   
+    ; CHECK: bb.2:
   bb.2:
     successors: %bb.3
 
     %3:gpr = persistent ADDI $x0, 0
     %2:gpr = ADDI %1, 0
+    ; CHECK:      $x10 =
+    ; CHECK-NEXT: $x10 =
   
+    ; CHECK: bb.3:
   bb.3:
     $x10 = ADDI %2, 0
     PseudoRET implicit $x10
