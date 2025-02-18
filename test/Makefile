@@ -17,6 +17,7 @@ LLCFLAGS += $(EXTRA)
 
 LITFLAGS = 
 LITFLAGS += -v
+LITFLAGS += --config-prefix=lit.standalone
 
 TESTS = 
 TESTS += test_1_1
