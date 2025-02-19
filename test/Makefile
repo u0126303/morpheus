@@ -51,7 +51,8 @@ all: $(MIRS_DISABLE) $(MIRS_ENABLE) $(RISCVS) $(LITS)
 
 .PHONY: %.test
 test:
-	$(MAKE) clean
+	$(RM) $(MIRS_ENABLE)
+	$(RM) $(MIRS_DISABLE)
 	$(LIT) .
 
 .PHONY: %.cfg
