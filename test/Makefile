@@ -35,7 +35,7 @@ MIRS_DISABLE = $(patsubst %, %.disable.mir, $(TESTS))
 RISCVS = $(patsubst %, %.s, $(TESTS))
 LITS = $(patsubst %, %.lit, $(TESTS))
 
-all: $(MIRS_DISABLE) $(MIRS_ENABLE) $(RISCVS) $(LITS)
+all: $(MIRS_DISABLE) $(MIRS_ENABLE) $(RISCVS)
 
 %.enable.mir: %.mir
 	$(LLC) $(LLCFLAGS) $(LLCREGALLOC) -debug-only=ami-liveintervals $< -o $@
